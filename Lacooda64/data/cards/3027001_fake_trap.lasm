@@ -1,0 +1,103 @@
+; Audited against data/effects.txt TEXT, lines 3051-3065; corrected locally.
+; Invoke as a participant of a staged MOVE DESTROY for WOULD_DESTROY (163).
+; A1.SOURCE (38) is the opponent effect source; CONTROLLER=79, IS.TRAP=147.
+; The staged source/count must enumerate exactly the pending destruction batch.
+; Replace destruction of own other Traps; preserve destruction of other victims.
+; Inspect only protected face-down Traps privately for this controller.
+; Native MOVE DESTROY resolves the unprotected victims with card-effect cause.
+
+; Fake Trap: effect 1 (REPLACEMENT, optional=0)
+.program 3027001_1
+PC Instruction Meaning
+    0 COMPARE F0, CONTROL.EVENT_KIND, #163, EQUAL                                 
+    1 JUMPIF F0, 90, FALSE                                                        
+    2 ATTRIBUTE A2, A0, #3                                                        
+    3 LOAD V2, A2                                                                 
+    4 COMPARE F0, V2, #4, EQUAL                                                   
+    5 JUMPIF F0, 90, FALSE                                                        
+    6 ATTRIBUTE A2, A1, #38                                                       
+    7 LOAD V2, A2                                                                 
+    8 COMPARE F0, V2, #0, EQUAL                                                   
+    9 JUMPIF F0, 90                                                               
+   10 LOAD A3, A2                                                                 
+   11 ATTRIBUTE A2, A3, #79                                                       
+   12 LOAD V2, A2                                                                 
+   13 COMPARE F0, V2, V1, EQUAL                                                   
+   14 JUMPIF F0, 90, FALSE                                                        
+   15 LOAD V2, CONTROL.PENDING_CANCELLED                                          
+   16 COMPARE F0, V2, #0, EQUAL                                                   
+   17 JUMPIF F0, 90, FALSE                                                        
+   18 LOAD A3, CONTROL.PENDING_SOURCE0                                            
+   19 ENUMERATE V3, A3                                                            
+   20 LENGTH V4, V3                                                               
+   21 LOAD V5, CONTROL.PENDING_SOURCE1                                            
+   22 ALU V4, V4, V5, MINIMUM                                                     
+   23 ENUMERATE V6, NONE                                                          
+   24 ENUMERATE V7, NONE                                                          
+   25 SET V8, #0                                                                  
+   26 COMPARE F0, V8, V4, GREATER_EQUAL                                           
+   27 JUMPIF F0, 48                                                               
+   28 AT A4, V3, V8                                                               
+   29 ALU V8, V8, #1, ADD                                                         
+   30 COMPARE F0, A4, A0, EQUAL                                                   
+   31 JUMPIF F0, 26                                                               
+   32 ATTRIBUTE A2, A4, #79                                                       
+   33 LOAD V2, A2                                                                 
+   34 COMPARE F0, V2, V0, EQUAL                                                   
+   35 JUMPIF F0, 46, FALSE                                                        
+   36 ATTRIBUTE A2, A4, #3                                                        
+   37 LOAD V2, A2                                                                 
+   38 COMPARE F0, V2, #4, EQUAL                                                   
+   39 JUMPIF F0, 46, FALSE                                                        
+   40 ATTRIBUTE A2, A4, #147                                                      
+   41 LOAD V2, A2                                                                 
+   42 COMPARE F0, V2, #1, EQUAL                                                   
+   43 JUMPIF F0, 46, FALSE                                                        
+   44 APPEND V6, A4                                                               
+   45 JUMP 26                                                                     
+   46 APPEND V7, A4                                                               
+   47 JUMP 26                                                                     
+   48 LENGTH V8, V6                                                               
+   49 COMPARE F0, V8, #0, EQUAL                                                   
+   50 JUMPIF F0, 90                                                               
+   51 ATTRIBUTE A2, A0, #14                                                       
+   52 LOAD V2, A2                                                                 
+   53 SELECT A5, [0:3:0]                                                          
+   54 COMPARE F0, V2, #0, EQUAL                                                   
+   55 JUMPIF F0, 57                                                               
+   56 SELECT A5, [1:3:0]                                                          
+   57 MOVE DESTROY, A5, A0, #1 | flags=0 cause=7                                  
+   58 COMPARE F0, CONTROL.RESULT_COUNT, #1, EQUAL                                 
+   59 JUMPIF F0, 90, FALSE                                                        
+   60 STORE CONTROL.PENDING_CANCELLED, #1                                         
+   61 SELECT A5, [0:0]                                                            
+   62 COMPARE F0, V0, #0, EQUAL                                                   
+   63 JUMPIF F0, 65                                                               
+   64 SELECT A5, [1:0]                                                            
+   65 SET V9, #0                                                                  
+   66 COMPARE F0, V9, V8, GREATER_EQUAL                                           
+   67 JUMPIF F0, 76                                                               
+   68 AT A4, V6, V9                                                               
+   69 ALU V9, V9, #1, ADD                                                         
+   70 ATTRIBUTE A2, A4, #4                                                        
+   71 LOAD V2, A2                                                                 
+   72 COMPARE F0, V2, #0, EQUAL                                                   
+   73 JUMPIF F0, 66, FALSE                                                        
+   74 EVENT INSPECT, A4, A5, #0 | flags=32 cause=0                                
+   75 JUMP 66                                                                     
+   76 LENGTH V8, V7                                                               
+   77 SET V9, #0                                                                  
+   78 COMPARE F0, V9, V8, GREATER_EQUAL                                           
+   79 JUMPIF F0, 90                                                               
+   80 AT A4, V7, V9                                                               
+   81 ALU V9, V9, #1, ADD                                                         
+   82 ATTRIBUTE A2, A4, #14                                                       
+   83 LOAD V2, A2                                                                 
+   84 SELECT A5, [0:3:0]                                                          
+   85 COMPARE F0, V2, #0, EQUAL                                                   
+   86 JUMPIF F0, 88                                                               
+   87 SELECT A5, [1:3:0]                                                          
+   88 MOVE DESTROY, A5, A4, #1 | flags=0 cause=3                                  
+   89 JUMP 78                                                                     
+   90 HALT                                                                        
+.end

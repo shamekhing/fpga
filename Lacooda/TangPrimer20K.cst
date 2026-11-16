@@ -1,0 +1,350 @@
+// ===========================================================================
+// T20kTest - Gowin physical constraints (.cst)
+//
+// Board  : Sipeed Tang Primer 20K core board + 20K Dock baseboard
+// Device : GW2A-LV18PG256C8/I7 (GW2A-18C, PBGA256, speed grade 8)
+// Tool   : Gowin V1.9.11.03 Education
+//
+// Syntax reference: "Gowin Design Physical Constraints User Guide", SUG935-1.3E
+// (Appendix A - Physical Constraints Syntax Definition):
+//   A.1 I/O constraints   IO_LOC "obj_name" obj_location [exclusive];
+//   A.2 Port constraints  IO_PORT "port_name" attr=value [attr=value ...];
+//   A.8 Clock assignment  CLOCK_LOC "net_name" global_clocks = fanout;
+// Attributes used below: IO_TYPE, PULL_MODE, DRIVE (see A.2 / the device
+// datasheet for the full attribute list, incl. SLEW_RATE, PCI_CLAMP,
+// HYSTERESIS, OPEN_DRAIN, VREF, SINGLE_RESISTOR, DIFF_RESISTOR, BANK_VCCIO).
+//
+// HOW TO EDIT THIS FILE
+//   1. Every name used by IO_LOC / IO_PORT must be a port of the synthesizable
+//      top module (src/rtl/fpga_top.sv). A constraint naming a port that does
+//      not exist aborts Place & Route with
+//          ERROR (CT1135) : "T20kTest.cst":n | Can't find object named 'x'
+//          Physical Constraint parsed completed with errors
+//      Optional Dock interfaces are therefore kept COMMENTED OUT below. To use
+//      one: add the matching ports to fpga_top.sv, then uncomment the block.
+//   2. Pin data provenance is quoted above every block. Check it against the
+//      Tang Primer 20K Dock schematic (Rev 1.1 / 3713) before wiring hardware.
+//   3. Static timing (create_clock, set_input_delay, ...) belongs in
+//      src/T20kTest.sdc - NOT here.
+// ===========================================================================
+
+
+// ===========================================================================
+// DUAL-PURPOSE PINS - must be enabled as regular I/O or PnR fails
+//
+// Three of the active pins double as FPGA configuration pins:
+//   key_n[0] T10  = SSPI SI/D2      led_n[0] C13 = DONE     led_n[1] A13 = READY
+// They may only be used as user I/O when the project's device configuration
+// marks those functions as regular I/O. Otherwise Place & Route stops with
+//   ERROR (PR2028) : The constrained location is useless in current package
+//   ERROR (PR2017) : 'key_n[0]' cannot be placed according to constraint, for
+//                    the location is a dedicated pin (SSPI)
+// This is a project/device setting, NOT a .cst constraint. In the IDE:
+//   Project > Configuration > Dual-Purpose Pin: set SSPI, DONE and READY to
+//   "regular I/O" (True) and keep JTAG as the configuration mode, i.e. the
+//   generated impl/pnr/device.cfg must contain
+//       set JTAG   regular_io = false
+//       set SSPI   regular_io = true
+//       set READY  regular_io = true
+//       set DONE   regular_io = true
+//       set RECONFIG_N regular_io = false   // keep the RECONFIG_N pin for recovery
+// ===========================================================================
+
+
+// ===========================================================================
+// ACTIVE CONSTRAINTS - exactly the ports of src/rtl/fpga_top.sv
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// clk - 27 MHz oscillator on the core board (bank 0, GCLKT_0)
+// Source: Sipeed TangPrimer-20K-example (Litex/sipeed_tang_primer_20k/src).
+// ---------------------------------------------------------------------------
+IO_LOC "clk" H11;
+IO_PORT "clk" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+
+// ---------------------------------------------------------------------------
+// key_n[4:0] - Dock user keys S0..S4, active low (low = pressed)
+//   key_n[0] = S0  T10  bank 3, 3.3 V  (~RST key on the Dock schematic)
+//   key_n[1] = S1  T3   bank 4, 1.5 V
+//   key_n[2] = S2  T2   bank 4, 1.5 V
+//   key_n[3] = S3  D7   bank 4, 1.5 V
+//   key_n[4] = S4  C7   bank 4, 1.5 V
+// The Dock fits 10 k pull-ups to +1V5 on the bank-4 keys, so PULL_MODE=UP
+// matches the board and holds the keys de-asserted before configuration.
+// Source: Sipeed TangPrimer-20K-example + Dock schematic sheet 1.
+// ---------------------------------------------------------------------------
+IO_LOC "key_n[0]" T10;
+IO_PORT "key_n[0]" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+IO_LOC "key_n[1]" T3;
+IO_PORT "key_n[1]" IO_TYPE=LVCMOS15 PULL_MODE=UP;
+IO_LOC "key_n[2]" T2;
+IO_PORT "key_n[2]" IO_TYPE=LVCMOS15 PULL_MODE=UP;
+IO_LOC "key_n[3]" D7;
+IO_PORT "key_n[3]" IO_TYPE=LVCMOS15 PULL_MODE=UP;
+IO_LOC "key_n[4]" C7;
+IO_PORT "key_n[4]" IO_TYPE=LVCMOS15 PULL_MODE=UP;
+
+// ---------------------------------------------------------------------------
+// led_n[5:0] - Dock user LEDs LED0..LED5, active low (low = lit)
+// 510 R series resistors to the LEDs; DRIVE=8 / PULL_MODE=UP follow Sipeed's
+// own example (TangPrimer-20K-example .../key_6leds_on.cst).
+// ---------------------------------------------------------------------------
+IO_LOC "led_n[0]" C13;
+IO_PORT "led_n[0]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "led_n[1]" A13;
+IO_PORT "led_n[1]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "led_n[2]" N16;
+IO_PORT "led_n[2]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "led_n[3]" N14;
+IO_PORT "led_n[3]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "led_n[4]" L14;
+IO_PORT "led_n[4]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_LOC "led_n[5]" L16;
+IO_PORT "led_n[5]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+
+
+// ===========================================================================
+// OPTIONAL DOCK INTERFACES
+//
+// Each block is disabled (commented) because the ports it names are not in the
+// current fpga_top.sv. Enabling a block without adding the ports is a CT1135
+// error, so keep the two in sync.
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// 5-position DIP switch (SW1..SW5)
+// RTL port needed: input logic [4:0] sw; - already present in fpga_top.sv but
+// guarded by `define USE_DIP (uncomment that define to use it).
+//
+// Pin map read from the Tang Primer 20K Dock schematic Rev 1.1 (3713), sheet 1,
+// SODIMM edge-connector net labels, in SW1..SW5 order:
+//   SW1  B10  bank 3, 3.3 V   net B10_IOR31B_~{RECFG}
+//   SW2  E9   bank 4, 1.5 V   net E9_IOL38B_1V5
+//   SW3  E8   bank 4, 1.5 V   net E8_IOL45B_1V5
+//   SW4  T4   bank 4, 1.5 V   net T4_IOB45B_1V5
+//   SW5  T5   bank 4, 1.5 V   net T5_IOB54B_1V5
+//
+// WARNING: SW1 is wired to B10_IOR31B_~{RECFG}, the FPGA reconfiguration
+// control pin (Sipeed's wiki uses DIP switch 1 to recover a board whose
+// dual-purpose pins block JTAG access). Two consequences:
+//   * reading B10 as a user input gives up that recovery path, and
+//   * PnR only accepts B10 as I/O when RECONFIG_N is configured as a regular
+//     I/O pin (set RECONFIG_N regular_io = true), otherwise it stops with
+//     ERROR (PR2017) 'sw[0]' ... dedicated pin (RECONFIG_N).
+// Either leave SW1 in its non-reconfig position and drop sw[0], or accept the
+// loss of the recovery path and enable RECONFIG_N as regular I/O.
+//
+// The Dock fits external resistors on these nets, so PULL_MODE is left at NONE
+// and the switch polarity must be confirmed on hardware (fpga_top.sv notes the
+// same: "polarity: flip if inverted").
+// ---------------------------------------------------------------------------
+// IO_LOC "sw[0]" B10;
+// IO_PORT "sw[0]" IO_TYPE=LVCMOS33 PULL_MODE=NONE;
+// IO_LOC "sw[1]" E9;
+// IO_PORT "sw[1]" IO_TYPE=LVCMOS15 PULL_MODE=NONE;
+// IO_LOC "sw[2]" E8;
+// IO_PORT "sw[2]" IO_TYPE=LVCMOS15 PULL_MODE=NONE;
+// IO_LOC "sw[3]" T4;
+// IO_PORT "sw[3]" IO_TYPE=LVCMOS15 PULL_MODE=NONE;
+// IO_LOC "sw[4]" T5;
+// IO_PORT "sw[4]" IO_TYPE=LVCMOS15 PULL_MODE=NONE;
+
+// ---------------------------------------------------------------------------
+// USB-UART bridge (onboard BL702), 3.3 V
+// RTL ports needed: input serial_rx, output serial_tx
+//   serial_rx  T13  <- BL702 TXO   (RTL input)
+//   serial_tx  M11  -> BL702 RXO   (RTL output)
+// Source: Sipeed TangPrimer-20K-example.
+// ---------------------------------------------------------------------------
+// IO_LOC "serial_rx" T13;
+// IO_PORT "serial_rx" IO_TYPE=LVCMOS33 PULL_MODE=UP;
+// IO_LOC "serial_tx" M11;
+// IO_PORT "serial_tx" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+
+// ---------------------------------------------------------------------------
+// Onboard WS2812B RGB LED data line (net LED_DAT)
+// RTL port needed: output ws2812_dat
+// Source: community board description for this Dock (riocore TangPrimer20K.md,
+// slot "WLED"). T9 is also the pin-4 signal of expansion slot 1, so the RGB LED
+// and that slot share one pin - do not drive both at the same time.
+// ---------------------------------------------------------------------------
+// IO_LOC "ws2812_dat" T9;
+// IO_PORT "ws2812_dat" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+
+// ---------------------------------------------------------------------------
+// Dock HDMI output (TMDS), differential pairs
+// RTL ports needed: output O_tmds_clk_p, output [2:0] O_tmds_data_p
+// Taken from Sipeed's Dock HDMI example; the pairs land on the bank-0 LVDS/T
+// pins (IOT16/IOT20/IOT24/IOT4), which other Dock functions also use, so check
+// for conflicts before enabling.
+// ---------------------------------------------------------------------------
+// IO_LOC "O_tmds_clk_p" G16,H15;
+// IO_PORT "O_tmds_clk_p" PULL_MODE=NONE DRIVE=3.5;
+// IO_LOC "O_tmds_data_p[0]" H14,H16;
+// IO_PORT "O_tmds_data_p[0]" PULL_MODE=NONE DRIVE=3.5;
+// IO_LOC "O_tmds_data_p[1]" J15,K16;
+// IO_PORT "O_tmds_data_p[1]" PULL_MODE=NONE DRIVE=3.5;
+// IO_LOC "O_tmds_data_p[2]" K14,K15;
+// IO_PORT "O_tmds_data_p[2]" PULL_MODE=NONE DRIVE=3.5;
+
+// ---------------------------------------------------------------------------
+// Onboard Ethernet PHY (RTL8201F) in RMII mode
+// RTL ports needed: output [1:0] eth_txd, output eth_txen, input [1:0] eth_rxd,
+//                   input eth_rxcrs, output eth_mdc, inout eth_mdio
+//   TXD0 D16   TXD1 E14   TXEN E16   RXD0 F15   RXD1 C9
+//   RXCRS M6   MDC F14    MDIO F16   CLK50M A9
+// Source: community board description for this Dock (riocore TangPrimer20K.md,
+// slot "RMII"). M6/C9 sit in bank 3 next to the JTAG pins - verify on the Dock
+// schematic before enabling.
+// ---------------------------------------------------------------------------
+// IO_LOC "eth_txd[0]" D16;
+// IO_PORT "eth_txd[0]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+// IO_LOC "eth_txd[1]" E14;
+// IO_PORT "eth_txd[1]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+// IO_LOC "eth_txen" E16;
+// IO_PORT "eth_txen" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+// IO_LOC "eth_rxd[0]" F15;
+// IO_PORT "eth_rxd[0]" IO_TYPE=LVCMOS33 PULL_MODE=NONE;
+// IO_LOC "eth_rxd[1]" C9;
+// IO_PORT "eth_rxd[1]" IO_TYPE=LVCMOS33 PULL_MODE=NONE;
+// IO_LOC "eth_rxcrs" M6;
+// IO_PORT "eth_rxcrs" IO_TYPE=LVCMOS33 PULL_MODE=NONE;
+// IO_LOC "eth_mdc" F14;
+// IO_PORT "eth_mdc" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+// IO_LOC "eth_mdio" F16;
+// IO_PORT "eth_mdio" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+// IO_LOC "eth_clk50m" A9;
+// IO_PORT "eth_clk50m" IO_TYPE=LVCMOS33 PULL_MODE=NONE;
+
+// ---------------------------------------------------------------------------
+// Dock expansion slots (8 signals each, pins 1..4 / 7..10 of the 2x5 header)
+// Source: community board description for this Dock (riocore TangPrimer20K.md).
+// RTL ports needed: e.g. inout [7:0] pmod1 ... pmod4
+//   slot 1  (mic array) : P6   R8   P8   T9   T6   T7   T8   P9
+//   slot 2  (TVP/camera): P11  R11  M15  J16  T11  T12  M14  J14
+//   slot 3  (RGB/LCD)   : E15  A15  A14  C12  D14  B14  B13  B12
+//   slot 4  (LCD)       : B11  D11  N7   N8   A11  N6   N9   L9
+// The slots mix bank-1 (1.5 V / 2.5 V) and bank-7 (3.3 V) pins, so each signal
+// needs its own IO_TYPE - the two example lines below show slot 3 only.
+// ---------------------------------------------------------------------------
+// IO_LOC "pmod3[0]" E15;
+// IO_PORT "pmod3[0]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+// IO_LOC "pmod3[1]" A15;
+// IO_PORT "pmod3[1]" IO_TYPE=LVCMOS33 PULL_MODE=NONE DRIVE=8;
+
+// ---------------------------------------------------------------------------
+// Onboard 1 Gbit DDR3 SDRAM (SSTL15, bank 4/5 at 1.5 V)
+// Source: Sipeed TangPrimer-20K-example. Do not enable without DDR3 RTL (e.g.
+// the Gowin DDR3 IP core): the DQ/DQS groups must stay together, and some
+// flows add explicit drive/bank attributes, e.g.
+//   IO_PORT "ddram_dq[0]" IO_TYPE=SSTL15 VREF=INTERNAL PULL_MODE=NONE DRIVE=8 BANK_VCCIO=1.5;
+// ---------------------------------------------------------------------------
+// IO_LOC "ddram_a[0]" F7;
+// IO_PORT "ddram_a[0]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[1]" A4;
+// IO_PORT "ddram_a[1]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[2]" D6;
+// IO_PORT "ddram_a[2]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[3]" F8;
+// IO_PORT "ddram_a[3]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[4]" C4;
+// IO_PORT "ddram_a[4]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[5]" E6;
+// IO_PORT "ddram_a[5]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[6]" B1;
+// IO_PORT "ddram_a[6]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[7]" D8;
+// IO_PORT "ddram_a[7]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[8]" A5;
+// IO_PORT "ddram_a[8]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[9]" F9;
+// IO_PORT "ddram_a[9]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[10]" K3;
+// IO_PORT "ddram_a[10]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[11]" B7;
+// IO_PORT "ddram_a[11]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[12]" A3;
+// IO_PORT "ddram_a[12]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_a[13]" C8;
+// IO_PORT "ddram_a[13]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_ba[0]" H4;
+// IO_PORT "ddram_ba[0]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_ba[1]" D3;
+// IO_PORT "ddram_ba[1]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_ba[2]" H5;
+// IO_PORT "ddram_ba[2]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_ras_n" R4;
+// IO_PORT "ddram_ras_n" IO_TYPE=SSTL15;
+// IO_LOC "ddram_cas_n" R6;
+// IO_PORT "ddram_cas_n" IO_TYPE=SSTL15;
+// IO_LOC "ddram_we_n" L2;
+// IO_PORT "ddram_we_n" IO_TYPE=SSTL15;
+// IO_LOC "ddram_cs_n" P5;
+// IO_PORT "ddram_cs_n" IO_TYPE=SSTL15;
+// IO_LOC "ddram_dm[0]" G1;
+// IO_PORT "ddram_dm[0]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_dm[1]" K5;
+// IO_PORT "ddram_dm[1]" IO_TYPE=SSTL15;
+// IO_LOC "ddram_dq[0]" G5;
+// IO_PORT "ddram_dq[0]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[1]" F5;
+// IO_PORT "ddram_dq[1]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[2]" F4;
+// IO_PORT "ddram_dq[2]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[3]" F3;
+// IO_PORT "ddram_dq[3]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[4]" E2;
+// IO_PORT "ddram_dq[4]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[5]" C1;
+// IO_PORT "ddram_dq[5]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[6]" E1;
+// IO_PORT "ddram_dq[6]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[7]" B3;
+// IO_PORT "ddram_dq[7]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[8]" M3;
+// IO_PORT "ddram_dq[8]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[9]" K4;
+// IO_PORT "ddram_dq[9]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[10]" N2;
+// IO_PORT "ddram_dq[10]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[11]" L1;
+// IO_PORT "ddram_dq[11]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[12]" P4;
+// IO_PORT "ddram_dq[12]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[13]" H3;
+// IO_PORT "ddram_dq[13]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[14]" R1;
+// IO_PORT "ddram_dq[14]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dq[15]" M2;
+// IO_PORT "ddram_dq[15]" IO_TYPE=SSTL15 VREF=INTERNAL;
+// IO_LOC "ddram_dqs_p[0]" G2,G3;
+// IO_PORT "ddram_dqs_p[0]" IO_TYPE=SSTL15D;
+// IO_LOC "ddram_dqs_p[1]" J5,K6;
+// IO_PORT "ddram_dqs_p[1]" IO_TYPE=SSTL15D;
+// IO_LOC "ddram_clk_p" J1,J3;
+// IO_PORT "ddram_clk_p" IO_TYPE=SSTL15D;
+// IO_LOC "ddram_cke" J2;
+// IO_PORT "ddram_cke" IO_TYPE=SSTL15;
+// IO_LOC "ddram_odt" R3;
+// IO_PORT "ddram_odt" IO_TYPE=SSTL15;
+// IO_LOC "ddram_reset_n" B9;
+// IO_PORT "ddram_reset_n" IO_TYPE=SSTL15;
+
+// ===========================================================================
+// NOTES
+//   * "clk" already sits on the dedicated global clock pin H11 (GCLKT_0), so no
+//     CLOCK_LOC / BUFG assignment (guide A.8) is needed. If a net ever needs an
+//     explicit global clock the form is
+//         CLOCK_LOC "net_name" BUFG[0] = CLK;      // or  BUFS = CLK|CE;
+//   * PnR still reports "WARN (TA1132): 'clk' was determined to be a clock but
+//     was not created" because src/T20kTest.sdc is empty. Add the timing
+//     constraint there, e.g.
+//         create_clock -name clk -period 37.037 -waveform {0 18.519} [get_ports clk]
+//     (27 MHz), so timing is checked against the real period instead of the
+//     default global frequency.
+//   * Other constraint types from the guide are available if this design grows:
+//     A.1 IO_LOC "x" A1 exclusive;        (lock a pin to one object)
+//     A.2 ... SLEW_RATE=FAST OPEN_DRAIN=ON (further port attributes)
+//     A.6 USE_VREF_DRIVER vref_pin C7;    (external VREF input)
+//     A.8 CLOCK_LOC "net" LOCAL_CLOCK;    (keep a net off the clock tree)
+// ===========================================================================

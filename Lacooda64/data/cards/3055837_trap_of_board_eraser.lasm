@@ -1,0 +1,43 @@
+; Audited against data/effects.txt TEXT, lines 2932-2944; corrected locally.
+; Invoke as a replacement participant for staged DAMAGE to the controller LP.
+; Event 161 denotes effect damage only; do not dispatch it for battle damage.
+; Cancel only this damage instruction, leaving the rest of the effect intact.
+; Set event AMOUNT=35 to zero; an empty opponent hand does not prevent protection.
+
+; Trap of Board Eraser: effect 1 (COUNTER, optional=0)
+.program 3055837_1
+PC Instruction Meaning
+    0 COMPARE F0, CONTROL.EVENT_KIND, #161, EQUAL                                 
+    1 JUMPIF F0, 32, FALSE                                                        
+    2 SELECT A2, [0:36]                                                           
+    3 SELECT A3, [1:2:0]                                                          
+    4 COMPARE F0, V0, #0, EQUAL                                                   
+    5 JUMPIF F0, 8                                                                
+    6 SELECT A2, [1:36]                                                           
+    7 SELECT A3, [0:2:0]                                                          
+    8 LOAD V2, CONTROL.PENDING_DESTINATION                                        
+    9 COMPARE F0, V2, A2, EQUAL                                                   
+   10 JUMPIF F0, 32, FALSE                                                        
+   11 LOAD V2, CONTROL.PENDING_SOURCE0                                            
+   12 COMPARE F0, V2, #0, GREATER                                                 
+   13 JUMPIF F0, 32, FALSE                                                        
+   14 LOAD V2, CONTROL.PENDING_CANCELLED                                          
+   15 COMPARE F0, V2, #0, EQUAL                                                   
+   16 JUMPIF F0, 32, FALSE                                                        
+   17 STORE CONTROL.PENDING_CANCELLED, #1                                         
+   18 ATTRIBUTE A4, A1, #35                                                       
+   19 STORE A4, #0                                                                
+   20 ENUMERATE V2, A3                                                            
+   21 LENGTH V3, V2                                                               
+   22 COMPARE F0, V3, #0, EQUAL                                                   
+   23 JUMPIF F0, 32                                                               
+   24 CHOOSE A4, V2, V1                                                           
+   25 ATTRIBUTE A2, A4, #14                                                       
+   26 LOAD V2, A2                                                                 
+   27 SELECT A3, [0:3:0]                                                          
+   28 COMPARE F0, V2, #0, EQUAL                                                   
+   29 JUMPIF F0, 31                                                               
+   30 SELECT A3, [1:3:0]                                                          
+   31 MOVE DISCARD, A3, A4, #1 | flags=0 cause=3                                  
+   32 HALT                                                                        
+.end

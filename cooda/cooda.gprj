@@ -1,0 +1,57 @@
+<?xml version="1" encoding="UTF-8"?>
+<!DOCTYPE gowin-fpga-project>
+<Project>
+    <Template>FPGA</Template>
+    <Version>5</Version>
+    <Device name="GW2A-18C" pn="GW2A-LV18PG256C8/I7">gw2a18c-011</Device>
+    <FileList>
+        <File path="src/ip/usb_device_controller/usb_device_controller.v" type="file.verilog" enable="1"/>
+        <File path="src/rtl/bus/bus_arbiter.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/alu/cpu_alu.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/alu/cpu_alu_arithmetic.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/alu/cpu_alu_comparator.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/alu/cpu_alu_logic_unit.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/alu/cpu_alu_shifter.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/core/cpu_core.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/core/cpu_datapath.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/core/cpu_register_file.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/core/cpu_status_register.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/cpu.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/program/cpu_branch.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/program/cpu_decoder.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/program/cpu_fetch.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/program/cpu_pc.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/cpu/program/cpu_program.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/memory/ddr3/ddr3_cdc.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/memory/ddr3/ddr3_controller.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/memory/ddr3/ddr3_pll.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/memory/memory.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/memory/memory_bsram.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/memory/memory_ddr3.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/memory/memory_sd.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/memory/sd/sd_controller.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/memory/sd/sd_loader.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/memory/sd/sd_spi_master.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/mnist/mnist_fetch.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/mnist/mnist_frame_source.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/mnist/mnist_rate.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/mnist/mnist_usb_loader.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/mnist/mnist_view_top.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/packages/alu_pkg.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/packages/arch_pkg.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/packages/isa_pkg.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/packages/soc_pkg.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/soc/fpga_top.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/soc/system.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/util/async_fifo.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/util/button_debounce.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/video/hdmi/hdmi_rpll.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/video/hdmi/hdmi_timing.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/video/hdmi/hdmi_tmds_encoder.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/video/hdmi/hdmi_tmds_serializer.sv" type="file.verilog" enable="1"/>
+        <File path="src/rtl/video/hdmi/hdmi_tx.sv" type="file.verilog" enable="1"/>
+        <File path="src/constraints/sipeed_tang_primer_20k.cst" type="file.cst" enable="1"/>
+        <File path="src/constraints/sipeed_tang_primer_20k.sdc" type="file.sdc" enable="1"/>
+        <File path="src/programs/boot_program.hex" type="file.other" enable="1"/>
+    </FileList>
+</Project>

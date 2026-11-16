@@ -1,0 +1,60 @@
+
+# ============================================================
+# Simulation outputs
+# ============================================================
+
+**/sim/build/*
+**/sim/waveforms/*
+*_sim
+
+# Preserve the directories in Git
+!**/sim/build/.gitkeep
+!**/sim/waveforms/.gitkeep
+
+# ============================================================
+# Gowin IDE generated outputs
+# ============================================================
+
+/impl/*
+!/impl/lacooda_process_config.json
+!/impl/project_process_config.json
+
+# Gowin IDE per-user project state (window/flow state, machine specific)
+*.gprj.user
+
+# ============================================================
+# Waveform and simulation files
+# ============================================================
+
+*.vcd
+*.fst
+*.lxt
+*.lx2
+*.vvp
+
+# ============================================================
+# Icarus Verilog temporary files
+# ============================================================
+
+*.vpi
+*.vcd.tmp
+
+# ============================================================
+# GTKWave local settings
+# ============================================================
+
+*.gtkw
+
+# ============================================================
+# Editor / OS files
+# ============================================================
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+*~
+*.swp
+*.swo
+.DS_Store
