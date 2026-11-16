@@ -1,0 +1,52 @@
+; Audited against data/effects.txt TEXT, lines 1729-1740; corrected locally.
+; Invoke only after the controller elects to use this optional reroll.
+; Player.3000 stores last Second Coin Toss use turn + 1, shared across all
+; copies controlled by that player and initialized to zero.
+; Event RANDOM_RESULTS=164 references the exact completed toss collection;
+; VALUE=165 stores each flip as 1 or 2. Reroll every member before the caller
+; resumes the original effect; null/empty collections do not spend the use.
+
+; Second Coin Toss: effect 1 (QUICK, optional=1)
+.program 36562627_1
+PC Instruction Meaning
+    0 COMPARE F0, CONTROL.EVENT_KIND, #149, EQUAL                                 
+    1 JUMPIF F0, 39, FALSE                                                        
+    2 ATTRIBUTE A2, A0, #3                                                        
+    3 LOAD V2, A2                                                                 
+    4 COMPARE F0, V2, #4, EQUAL                                                   
+    5 JUMPIF F0, 39, FALSE                                                        
+    6 ATTRIBUTE A2, A0, #4                                                        
+    7 LOAD V2, A2                                                                 
+    8 COMPARE F0, V2, #1, EQUAL                                                   
+    9 JUMPIF F0, 39, FALSE                                                        
+   10 SELECT A20, [0:3000]                                                        
+   11 COMPARE F0, V0, #0, EQUAL                                                   
+   12 JUMPIF F0, 14                                                               
+   13 SELECT A20, [1:3000]                                                        
+   14 LOAD V20, [122]                                                             
+   15 ALU V20, V20, #1, ADD                                                       
+   16 LOAD V21, A20                                                               
+   17 COMPARE F0, V20, V21, EQUAL                                                 
+   18 JUMPIF F0, 39                                                               
+   19 ATTRIBUTE A3, A1, #164                                                      
+   20 LOAD V2, A3                                                                 
+   21 COMPARE F0, V2, #0, EQUAL                                                   
+   22 JUMPIF F0, 39                                                               
+   23 LOAD A2, A3                                                                 
+   24 ENUMERATE V2, A2                                                            
+   25 LENGTH V3, V2                                                               
+   26 COMPARE F0, V3, #0, EQUAL                                                   
+   27 JUMPIF F0, 39                                                               
+   28 STORE A20, V20                                                              
+   29 SET V4, #0                                                                  
+   30 COMPARE F0, V4, V3, GREATER_EQUAL                                           
+   31 JUMPIF F0, 39                                                               
+   32 AT A4, V2, V4                                                               
+   33 RANDOM COIN, V5, NONE, #2                                                   
+   34 ALU V6, V5, #1, ADD                                                         
+   35 ATTRIBUTE A5, A4, #165                                                      
+   36 STORE A5, V6                                                                
+   37 ALU V4, V4, #1, ADD                                                         
+   38 JUMP 30                                                                     
+   39 HALT                                                                        
+.end
